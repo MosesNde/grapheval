@@ -1,9 +1,10 @@
 # grapheval
 
-Replication package for *Evaluation Protocol and Graph Encoding in Vulnerability
-Detection with Code Property Graphs*.
+Replication package for a study of evaluation protocol and graph encoding in
+vulnerability detection with code property graphs. A citation will be added here
+on publication.
 
-The paper measures two methodological choices that papers in this area do not
+The study measures two methodological choices that papers in this area do not
 report — how the data is split, and the training configuration — and shows they
 move results more than the architectural differences between published systems.
 
@@ -15,7 +16,6 @@ move results more than the architectural differences between published systems.
 | `splits/` | the split definitions for all three protocols, with their audits |
 | `results/` | every run artifact the paper's numbers are computed from |
 | `corpus/` | the corpus manifest: function id, label, repository, commit, clone family |
-| `paper/` | LaTeX source |
 
 ## What is not here, and why
 
