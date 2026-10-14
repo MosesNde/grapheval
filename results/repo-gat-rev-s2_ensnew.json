@@ -1,0 +1,29 @@
+{
+  "ensemble_new_recipe": {
+    "prevalence": 0.1888,
+    "macro_f1": 0.4562,
+    "pr_auc": 0.2947,
+    "roc_auc": 0.6539,
+    "mcc": 0.0476,
+    "fpr": 0.0018,
+    "precision": 0.5246,
+    "recall": 0.0085,
+    "confusion": {
+      "tn": 16125,
+      "fp": 29,
+      "fn": 3728,
+      "tp": 32
+    },
+    "recall_at_fpr_0.01": 0.0343,
+    "recall_at_fpr_0.05": 0.1218
+  },
+  "per_fold_roc_auc": [
+    0.6373,
+    0.6362,
+    0.6602,
+    0.6324,
+    0.6516
+  ],
+  "fold_mean": 0.6435,
+  "seed": 2
+}

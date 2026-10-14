@@ -1,0 +1,30 @@
+{
+  "single_full_partition": {
+    "prevalence": 0.1888,
+    "macro_f1": 0.5194,
+    "pr_auc": 0.2167,
+    "roc_auc": 0.5665,
+    "mcc": 0.042,
+    "fpr": 0.2248,
+    "precision": 0.2186,
+    "recall": 0.2702,
+    "confusion": {
+      "tn": 12523,
+      "fp": 3631,
+      "fn": 2744,
+      "tp": 1016
+    },
+    "recall_at_fpr_0.01": 0.0146,
+    "recall_at_fpr_0.05": 0.0566
+  },
+  "n_train": 69698,
+  "n_test": 19914,
+  "cfg": {
+    "backbone": "gat",
+    "batch_size": 256,
+    "epochs": 120,
+    "early_stop_patience": 20,
+    "lr": 0.0005,
+    "seed": 2
+  }
+}

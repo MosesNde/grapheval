@@ -1,0 +1,107 @@
+{
+  "mode": "repo",
+  "reverse_edges": true,
+  "seed": 4,
+  "unfrozen_layers": 4,
+  "max_len": 32,
+  "encoder_lr": 2e-05,
+  "epochs": 15,
+  "frozen_encoder": true,
+  "edges": "all",
+  "val_source": "internal",
+  "train_frac": 1.0,
+  "test_roc_auc": 0.592,
+  "best_val": 0.7856,
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.338,
+      "train_auc": 0.6731,
+      "val_auc": 0.7409
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.3143,
+      "train_auc": 0.7287,
+      "val_auc": 0.7463
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.3017,
+      "train_auc": 0.7608,
+      "val_auc": 0.7581
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.2909,
+      "train_auc": 0.7858,
+      "val_auc": 0.7548
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.2817,
+      "train_auc": 0.8065,
+      "val_auc": 0.7636
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.2693,
+      "train_auc": 0.8295,
+      "val_auc": 0.7689
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.2578,
+      "train_auc": 0.8492,
+      "val_auc": 0.7695
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.2482,
+      "train_auc": 0.8646,
+      "val_auc": 0.7757
+    },
+    {
+      "epoch": 9,
+      "train_loss": 0.2363,
+      "train_auc": 0.8811,
+      "val_auc": 0.7735
+    },
+    {
+      "epoch": 10,
+      "train_loss": 0.2271,
+      "train_auc": 0.8919,
+      "val_auc": 0.7675
+    },
+    {
+      "epoch": 11,
+      "train_loss": 0.2189,
+      "train_auc": 0.9021,
+      "val_auc": 0.7834
+    },
+    {
+      "epoch": 12,
+      "train_loss": 0.2121,
+      "train_auc": 0.9092,
+      "val_auc": 0.7856
+    },
+    {
+      "epoch": 13,
+      "train_loss": 0.2062,
+      "train_auc": 0.9155,
+      "val_auc": 0.7839
+    },
+    {
+      "epoch": 14,
+      "train_loss": 0.2028,
+      "train_auc": 0.9188,
+      "val_auc": 0.7825
+    },
+    {
+      "epoch": 15,
+      "train_loss": 0.2009,
+      "train_auc": 0.92,
+      "val_auc": 0.7821
+    }
+  ]
+}

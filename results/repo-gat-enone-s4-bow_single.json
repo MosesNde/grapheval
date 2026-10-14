@@ -1,0 +1,104 @@
+{
+  "single_model": {
+    "prevalence": 0.1888,
+    "macro_f1": 0.4635,
+    "pr_auc": 0.2571,
+    "roc_auc": 0.6223,
+    "mcc": 0.0293,
+    "fpr": 0.0103,
+    "precision": 0.2936,
+    "recall": 0.0184,
+    "confusion": {
+      "tn": 15988,
+      "fp": 166,
+      "fn": 3691,
+      "tp": 69
+    },
+    "recall_at_fpr_0.01": 0.0181,
+    "recall_at_fpr_0.05": 0.0859
+  },
+  "best_val_auc": 0.6526,
+  "history": [
+    {
+      "epoch": 1,
+      "loss": 0.3441,
+      "val_auc": 0.6469
+    },
+    {
+      "epoch": 2,
+      "loss": 0.3166,
+      "val_auc": 0.6526
+    },
+    {
+      "epoch": 3,
+      "loss": 0.3023,
+      "val_auc": 0.6409
+    },
+    {
+      "epoch": 4,
+      "loss": 0.2877,
+      "val_auc": 0.6363
+    },
+    {
+      "epoch": 5,
+      "loss": 0.2727,
+      "val_auc": 0.6288
+    },
+    {
+      "epoch": 6,
+      "loss": 0.2585,
+      "val_auc": 0.6335
+    },
+    {
+      "epoch": 7,
+      "loss": 0.2459,
+      "val_auc": 0.626
+    },
+    {
+      "epoch": 8,
+      "loss": 0.2337,
+      "val_auc": 0.6098
+    },
+    {
+      "epoch": 9,
+      "loss": 0.222,
+      "val_auc": 0.6011
+    },
+    {
+      "epoch": 10,
+      "loss": 0.2113,
+      "val_auc": 0.6069
+    },
+    {
+      "epoch": 11,
+      "loss": 0.2033,
+      "val_auc": 0.6001
+    },
+    {
+      "epoch": 12,
+      "loss": 0.1967,
+      "val_auc": 0.596
+    },
+    {
+      "epoch": 13,
+      "loss": 0.1918,
+      "val_auc": 0.5911
+    },
+    {
+      "epoch": 14,
+      "loss": 0.1882,
+      "val_auc": 0.5907
+    },
+    {
+      "epoch": 15,
+      "loss": 0.1874,
+      "val_auc": 0.5907
+    }
+  ],
+  "mode": "repo",
+  "backbone": "gat",
+  "edges": "none",
+  "reverse_edges": false,
+  "features": "full",
+  "seed": 4
+}

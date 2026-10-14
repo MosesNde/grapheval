@@ -1,0 +1,17 @@
+{
+  "minhash": {
+    "n_pairs": 240,
+    "n_genuine_duplicates": 85,
+    "mean_signed_error_64": -0.0002,
+    "mean_abs_error_64": 0.0241,
+    "mean_signed_error_128": 0.0016,
+    "mean_abs_error_128": 0.0166,
+    "missed_at_64": 1,
+    "missed_at_128": 1
+  },
+  "prefix_truncation": {
+    "vulnerability_bearing_repos": 287,
+    "repos_with_no_safe_after_truncation": 221,
+    "share_of_vulnerable_functions_in_them_pct": 70.0
+  }
+}

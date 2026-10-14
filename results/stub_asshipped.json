@@ -1,0 +1,13 @@
+{
+  "bigvul vulnerable": {
+    "n_sampled": 1500,
+    "n_parsed": 1500,
+    "stub_rate_pct": 42.9
+  },
+  "bigvul safe (original prefix)": {
+    "n_sampled": 1500,
+    "n_parsed": 1500,
+    "stub_rate_pct": 9.9
+  },
+  "gap_points": 33.0
+}

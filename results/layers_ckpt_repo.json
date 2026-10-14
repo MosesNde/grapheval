@@ -1,0 +1,34 @@
+{
+  "mode": "repo",
+  "source": "checkpoint, full test partition",
+  "n_test": 19914,
+  "layers": {
+    "input": {
+      "dirichlet": 1.3417,
+      "pairwise_cos": 0.2361
+    },
+    "GAT 1": {
+      "dirichlet": 1.002,
+      "pairwise_cos": 0.208
+    },
+    "GAT 2": {
+      "dirichlet": 0.7943,
+      "pairwise_cos": 0.2461
+    },
+    "GAT 3": {
+      "dirichlet": 0.6429,
+      "pairwise_cos": 0.2809
+    }
+  },
+  "energy_decay_factor": 2.087,
+  "pooled_cos": {
+    "mean": 0.7258,
+    "std": 0.2809,
+    "frac_above_0.99": 0.0137
+  },
+  "graph_stats": {
+    "median_nodes": 75,
+    "p90_nodes": 462,
+    "mean_degree": 3.04
+  }
+}

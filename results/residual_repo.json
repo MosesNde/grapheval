@@ -1,0 +1,13 @@
+{
+  "mode": "repo",
+  "n_train": 69698,
+  "n_test": 19914,
+  "cos_zG_z0": 0.7258,
+  "ridge_r2_z0_to_zG": 0.7193,
+  "residual_norm_fraction": 0.4475,
+  "probe_auc": {
+    "z0": 0.5808,
+    "zG": 0.5995,
+    "residual": 0.4938
+  }
+}

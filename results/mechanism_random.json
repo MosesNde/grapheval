@@ -1,0 +1,27 @@
+{
+  "mode": "random",
+  "layers": {
+    "input": {
+      "dirichlet": 1.3534,
+      "pairwise_cos": 0.2337
+    },
+    "GAT 1": {
+      "dirichlet": 1.0134,
+      "pairwise_cos": 0.2071
+    },
+    "GAT 2": {
+      "dirichlet": 0.8221,
+      "pairwise_cos": 0.2306
+    },
+    "GAT 3": {
+      "dirichlet": 0.6516,
+      "pairwise_cos": 0.2644
+    }
+  },
+  "pooled_cos_with_vs_without_edges": {
+    "mean": 0.5647,
+    "std": 0.3661,
+    "frac_above_0.99": 0.009,
+    "n_graphs": 2560
+  }
+}

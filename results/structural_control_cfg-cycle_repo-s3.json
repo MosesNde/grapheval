@@ -1,0 +1,13 @@
+{
+  "task": "cfg-cycle",
+  "mode": "repo",
+  "seed": 3,
+  "prevalence": {
+    "train": 0.1599,
+    "val": 0.3229,
+    "test": 0.3165
+  },
+  "graph": 0.8633,
+  "nograph": 0.7533,
+  "delta": 0.11
+}

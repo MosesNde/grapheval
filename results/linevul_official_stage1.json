@@ -1,0 +1,35 @@
+{
+  "model": "official LineVul (awsm-research/LineVul), unmodified apart from an additive logit dump; CodeBERT, 5 epochs, seed 42",
+  "splits": "our audited splits",
+  "results": {
+    "random": {
+      "roc_auc": 0.914,
+      "pr_auc": 0.7234,
+      "mcc": 0.5844,
+      "macro_f1": 0.7843,
+      "prevalence": 0.1346,
+      "n": 19890
+    },
+    "group": {
+      "roc_auc": 0.8558,
+      "pr_auc": 0.6679,
+      "mcc": 0.5459,
+      "macro_f1": 0.7628,
+      "prevalence": 0.1386,
+      "n": 19886
+    },
+    "repo": {
+      "roc_auc": 0.7919,
+      "pr_auc": 0.5983,
+      "mcc": 0.4377,
+      "macro_f1": 0.6855,
+      "prevalence": 0.1897,
+      "n": 19819
+    }
+  },
+  "decomposition_pct": {
+    "duplicates_twins_commits": 14.1,
+    "repository_overlap": 15.4,
+    "genuine": 70.5
+  }
+}

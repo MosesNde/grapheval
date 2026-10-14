@@ -1,0 +1,94 @@
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{What the reported numbers measure}
+The three protocols differ in one respect, and that respect accounts for roughly
+seventy per cent of the signal above chance. A practitioner reading $0.796$ and
+a practitioner reading $0.585$ are reading the same model on the same corpus;
+only the question being asked has changed. The first asks whether the detector
+recognises functions resembling those it was trained on, which is a
+well-specified question and not the one deployment poses. The second asks
+whether it generalises to repositories it has never seen, which is.
+
+This is not an argument that published numbers are wrongly computed. It is an
+argument of the kind made more broadly about machine-learning-based
+science~\citep{kapoor2023leakage}: the number alone does not identify which
+question was answered, and the difference is large enough to change
+conclusions. A benchmark
+result reported without a statement of what the test partition was permitted to
+share with training is therefore incomplete in a way that a reader cannot detect
+or correct. Neither the mechanism nor the remedy is new to software engineering:
+near-duplicate code is pervasive on the platforms these corpora are mined
+from~\citep{lopes2017dejavu} and inflates model-of-code results when it crosses
+the split~\citep{allamanis2019adverse}, and defect prediction established two
+decades ago that cross-project evaluation asks a different and harder question
+than within-project evaluation~\citep{zimmermann2009cross}. What our measurements
+add is the size of the effect for this task and its decomposition into
+duplication and repository overlap.
+
+\subsection{Encoding choices are unreported and consequential}
+How much a code property graph is measured to contribute is not a property of
+the representation alone. It is a joint property of the representation and an
+encoding decision that this literature does not vary and does not report.
+Holding everything else fixed, restoring the reverse direction of each edge
+moves the same graphs from undetectable to $+0.032$ ROC-AUC under
+repository-disjoint evaluation, at no cost in model parameters. A second choice
+that looks equally consequential, distinguishing the four relation types,
+gains $0.002$ against a matched baseline (95\% CI $-0.005$ to $+0.010$).
+
+The second result is worth stating precisely because the encoding it concerns
+looks like the more meaningful one. That an edge carries data dependence rather
+than syntactic containment is the kind of information a reader expects a code
+property graph to supply, and it makes no measurable difference to any of the
+three architectures able to read it.
+
+The direction result is the more striking because the cause is mechanical rather
+than statistical. Joern emits a directed graph; a network consuming it unaltered
+lets each node aggregate only from its predecessors, which leaves the average
+node able to reach under a fifth of its own function within three layers. The
+fix is one line, and it is not applied because the encoding is treated as a
+property of the input rather than as a design decision.
+
+We note the asymmetry this creates in how the field allocates effort. A new
+aggregation scheme is a publishable contribution; the orientation of the edges it
+aggregates over is a detail of the data loader. On this corpus the second is
+worth more than several of the first, and it is worth more than the relation
+labels that motivate the representation in the first place. The same asymmetry has been reported for
+graph classification generally, where architectural gains narrow substantially
+once the surrounding protocol is held fixed~\citep{errica2020fair}.
+
+\subsection{Aggregate metrics and the capability of interest}
+The detectors examined here separate vulnerable from safe functions in aggregate
+while failing, at chance, to separate a vulnerable function from its own patched
+version. Those are different capabilities, and only the first is measured by the
+metric the field reports.
+
+The distinction matters for how results are read. A detector that recognises
+which functions resemble known-vulnerable code is useful for triage and
+prioritisation. A detector that identifies what specifically is wrong with a
+function is what the framing of this literature, and its use of terms like
+localisation and explanation, implies. Our measurements indicate that
+improvements in the first do not imply progress in the second, and that
+aggregate ROC-AUC cannot distinguish them. Reporting a paired evaluation
+alongside it costs one additional column and closes that gap.
+
+\subsection{Implications for practice}
+Three recommendations follow directly from the measurements. Evaluations should
+ship an audit of what the split separates, since the cost of omitting one is
+both large and currently invisible. Ablations should report seed counts and a test of significance, because
+run-to-run variation here is of the same magnitude as the effects being
+measured and the appropriate procedures are
+well established~\citep{arcuri2011practical}. And studies reporting a null result for a component should include a
+positive control establishing that the model can learn a label defined by that
+component, without which a null cannot be distinguished from an instrument that
+never read it.
+
+A fourth recommendation concerns the training procedure itself. Whether a study
+trains a single model or an ensemble, and how it selects the reported epoch, is
+worth more than several of the effects such studies report, and is rarely
+stated. We found that selecting the epoch on data sharing repositories with the
+training set costs ROC-AUC under a repository-disjoint protocol, which is the
+same leakage the split is designed to prevent, reappearing inside the training
+loop. That model validation technique is itself a first-order determinant of
+reported performance is a finding defect prediction reached
+earlier~\citep{tantithamthavorn2017empirical}.

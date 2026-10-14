@@ -1,0 +1,34 @@
+{
+  "mode": "repo",
+  "alpha_sweep": {
+    "0.1": {
+      "r2": 0.7192,
+      "resid_frac": 0.4476,
+      "auc_linear": 0.494
+    },
+    "1.0": {
+      "r2": 0.7193,
+      "resid_frac": 0.4475,
+      "auc_linear": 0.494
+    },
+    "10.0": {
+      "r2": 0.7206,
+      "resid_frac": 0.4465,
+      "auc_linear": 0.4942
+    },
+    "100.0": {
+      "r2": 0.7227,
+      "resid_frac": 0.4448,
+      "auc_linear": 0.4957
+    },
+    "1000.0": {
+      "r2": 0.7105,
+      "resid_frac": 0.4545,
+      "auc_linear": 0.503
+    }
+  },
+  "mlp_probe": {
+    "zG": 0.5801,
+    "residual": 0.5655
+  }
+}

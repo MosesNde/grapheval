@@ -1,0 +1,83 @@
+{
+  "ensemble_then_meta": {
+    "prevalence": 0.1888,
+    "macro_f1": 0.4971,
+    "pr_auc": 0.2437,
+    "roc_auc": 0.6136,
+    "mcc": 0.1387,
+    "fpr": 0.4927,
+    "precision": 0.2403,
+    "recall": 0.6697,
+    "confusion": {
+      "tn": 8195,
+      "fp": 7959,
+      "fn": 1242,
+      "tp": 2518
+    },
+    "recall_at_fpr_0.01": 0.0136,
+    "recall_at_fpr_0.05": 0.0465
+  },
+  "ensemble_mean_only": {
+    "prevalence": 0.1888,
+    "macro_f1": 0.5622,
+    "pr_auc": 0.2624,
+    "roc_auc": 0.6319,
+    "mcc": 0.1245,
+    "fpr": 0.1717,
+    "precision": 0.2876,
+    "recall": 0.2979,
+    "confusion": {
+      "tn": 13380,
+      "fp": 2774,
+      "fn": 2640,
+      "tp": 1120
+    },
+    "recall_at_fpr_0.01": 0.0157,
+    "recall_at_fpr_0.05": 0.0976
+  },
+  "per_fold_roc_auc": [
+    0.5615,
+    0.5951,
+    0.5979,
+    0.6189,
+    0.5966
+  ],
+  "fold_mean": 0.594,
+  "fold_std": 0.0184,
+  "test_non_stub": {
+    "prevalence": 0.19,
+    "macro_f1": 0.5037,
+    "pr_auc": 0.2544,
+    "roc_auc": 0.6193,
+    "mcc": 0.1419,
+    "fpr": 0.479,
+    "precision": 0.2442,
+    "recall": 0.6597,
+    "confusion": {
+      "tn": 7466,
+      "fp": 6864,
+      "fn": 1144,
+      "tp": 2218
+    },
+    "recall_at_fpr_0.01": 0.0238,
+    "recall_at_fpr_0.05": 0.0354
+  },
+  "test_stub": {
+    "prevalence": 0.1791,
+    "macro_f1": 0.4423,
+    "pr_auc": 0.1989,
+    "roc_auc": 0.5709,
+    "mcc": 0.1217,
+    "fpr": 0.6003,
+    "precision": 0.2151,
+    "recall": 0.7538,
+    "confusion": {
+      "tn": 729,
+      "fp": 1095,
+      "fn": 98,
+      "tp": 300
+    },
+    "recall_at_fpr_0.01": 0.0025,
+    "recall_at_fpr_0.05": 0.0427
+  }
+}

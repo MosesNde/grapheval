@@ -1,0 +1,61 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Empirical Software Engineering (Springer Nature) submission.
+%%
+%% Class: sn-jnl.cls v3.1, the current Springer Nature journal template.
+%% It supersedes svjour3, which Springer no longer distributes for new
+%% submissions.
+%%
+%% Reference style: sn-basic supports both author-year and numbered citation.
+%% EMSE uses author-year, which is the default here. To switch to numbered,
+%% add Numbered to the class options: [pdflatex,sn-basic,Numbered].
+%%
+%% NOTE FOR SUBMISSION: Springer asks for a single .tex file with no \input.
+%% The section files are kept separate here so the MSR version in
+%% ../Moses_personal_edit can share them. Flatten before uploading:
+%%     latexpand emse.tex > emse-flat.tex
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[pdflatex,sn-basic]{sn-jnl}
+
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{threeparttable}
+\usepackage{url}
+\usepackage{xcolor}   % only for the TODO markers in the declarations
+\usepackage{xurl}   % break long URLs anywhere; the Joern blog reference overflows otherwise
+\graphicspath{{./}}
+
+\begin{document}
+
+%% The bracketed short form is the running head.
+\title[Protocol and Encoding in CPG-Based Vulnerability Detection]{Evaluation Protocol and Graph Encoding in Vulnerability Detection with Code Property Graphs}
+
+\author*[1]{\fnm{Moses} \sur{Ndebugre}}\email{myndebugre@aggies.ncat.edu}
+\author[1]{\fnm{John} \sur{Bedeabasi}}
+\author[1]{\fnm{Mahmoud} \sur{Nabil}}
+\author[1]{\fnm{Ahmad} \sur{Patooghy}}
+
+\affil*[1]{\orgname{North Carolina Agricultural and Technical State University},
+  \orgaddress{\city{Greensboro}, \state{North Carolina}, \country{USA}}}
+
+\abstract{\input{v2/0.Abstract-body}}
+
+\keywords{Vulnerability detection, Code property graphs, Graph neural networks,
+Evaluation methodology, Data leakage, Empirical software engineering}
+
+\maketitle
+
+\input{v2/1.Intro}
+\input{v2/2.Literature}
+\input{v2/2b.Background}
+\input{v2/3.Method}
+\input{v2/4.Results}
+\input{v2/4b.Discussion}
+\input{v2/5.Threats}
+\input{v2/6.Conclusion}
+\input{v2/7.Declarations}
+
+\bibliography{references}
+
+\end{document}

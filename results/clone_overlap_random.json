@@ -1,0 +1,4 @@
+{
+  "clone_families_spanning_train_test": 3186,
+  "test_samples_leaked_by_clone_family": 3771
+}

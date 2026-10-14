@@ -1,0 +1,147 @@
+{
+  "n_total": 131903,
+  "n_vulnerable": 30881,
+  "prevalence": 0.2341,
+  "by_corpus": {
+    "cvefixes": 15346,
+    "devign": 27284,
+    "bigvul": 89273
+  },
+  "by_corpus_label": {
+    "bigvul/safe": 78510,
+    "bigvul/vuln": 10763,
+    "cvefixes/safe": 7673,
+    "cvefixes/vuln": 7673,
+    "devign/safe": 14839,
+    "devign/vuln": 12445
+  },
+  "family_support": {
+    "BUFFER_UNSPECIFIED": 2647,
+    "INPUT_VALIDATION": 1729,
+    "OOB_READ": 1723,
+    "RESOURCE_MGMT": 1445,
+    "INTEGER_ERROR": 1429,
+    "ACCESS_CONTROL": 1139,
+    "OOB_WRITE": 1138,
+    "USE_AFTER_FREE": 877,
+    "INFO_EXPOSURE": 636,
+    "NULL_DEREF": 623,
+    "RACE_CONDITION": 492,
+    "PATH_TRAVERSAL": 230,
+    "AUTH": 214,
+    "INJECTION": 203,
+    "CRYPTO": 187,
+    "TYPE_CONFUSION": 90,
+    "UNINITIALIZED": 37
+  },
+  "no_family_reasons": {
+    "NO_CWE_IN_CORPUS": 12445,
+    "NO_CWE_ASSIGNED_BY_NVD": 2849,
+    "CWE_OUTSIDE_TAXONOMY": 748
+  },
+  "top_cwes_outside_taxonomy": [
+    [
+      "CWE-254",
+      125
+    ],
+    [
+      "CWE-19",
+      88
+    ],
+    [
+      "CWE-17",
+      71
+    ],
+    [
+      "CWE-358",
+      38
+    ],
+    [
+      "CWE-18",
+      38
+    ],
+    [
+      "CWE-834",
+      19
+    ],
+    [
+      "CWE-311",
+      19
+    ],
+    [
+      "CWE-611",
+      17
+    ],
+    [
+      "CWE-824",
+      17
+    ],
+    [
+      "CWE-388",
+      17
+    ],
+    [
+      "CWE-776",
+      15
+    ],
+    [
+      "CWE-203",
+      15
+    ],
+    [
+      "CWE-252",
+      15
+    ],
+    [
+      "CWE-116",
+      14
+    ],
+    [
+      "CWE-354",
+      14
+    ],
+    [
+      "CWE-131",
+      13
+    ],
+    [
+      "CWE-436",
+      12
+    ],
+    [
+      "CWE-601",
+      12
+    ],
+    [
+      "CWE-913",
+      10
+    ],
+    [
+      "CWE-667",
+      10
+    ]
+  ],
+  "n_typed_vulnerable": 18436,
+  "coverage_of_typed": 0.8049,
+  "n_distinct_repos": 949,
+  "n_distinct_commits": 17968,
+  "n_distinct_pairs": 109261,
+  "families_over_500": [
+    "OOB_WRITE",
+    "INPUT_VALIDATION",
+    "NULL_DEREF",
+    "INTEGER_ERROR",
+    "OOB_READ",
+    "BUFFER_UNSPECIFIED",
+    "ACCESS_CONTROL",
+    "USE_AFTER_FREE",
+    "RESOURCE_MGMT",
+    "INFO_EXPOSURE"
+  ],
+  "stub_rate_by_label": {
+    "bigvul/vuln": 0.0838,
+    "bigvul/safe": 0.1148,
+    "cvefixes/vuln": 0.0846,
+    "cvefixes/safe": 0.0859
+  }
+}

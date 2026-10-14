@@ -1,0 +1,13 @@
+{
+  "task": "ddg-density",
+  "mode": "repo",
+  "seed": 2,
+  "prevalence": {
+    "train": 0.8174,
+    "val": 0.8849,
+    "test": 0.8124
+  },
+  "graph": 0.9825,
+  "nograph": 0.6769,
+  "delta": 0.3056
+}

@@ -1,0 +1,13 @@
+{
+  "mode": "random",
+  "n_train": 69698,
+  "n_test": 19914,
+  "cos_zG_z0": 0.5741,
+  "ridge_r2_z0_to_zG": 0.6831,
+  "residual_norm_fraction": 0.4506,
+  "probe_auc": {
+    "z0": 0.7698,
+    "zG": 0.779,
+    "residual": 0.597
+  }
+}

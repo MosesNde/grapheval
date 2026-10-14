@@ -1,0 +1,34 @@
+{
+  "mode": "random",
+  "source": "checkpoint, full test partition",
+  "n_test": 19914,
+  "layers": {
+    "input": {
+      "dirichlet": 1.3504,
+      "pairwise_cos": 0.2307
+    },
+    "GAT 1": {
+      "dirichlet": 1.0376,
+      "pairwise_cos": 0.2018
+    },
+    "GAT 2": {
+      "dirichlet": 0.8571,
+      "pairwise_cos": 0.2154
+    },
+    "GAT 3": {
+      "dirichlet": 0.6667,
+      "pairwise_cos": 0.266
+    }
+  },
+  "energy_decay_factor": 2.025,
+  "pooled_cos": {
+    "mean": 0.5741,
+    "std": 0.36,
+    "frac_above_0.99": 0.0239
+  },
+  "graph_stats": {
+    "median_nodes": 49,
+    "p90_nodes": 290,
+    "mean_degree": 2.87
+  }
+}

@@ -1,0 +1,107 @@
+{
+  "mode": "repo",
+  "reverse_edges": true,
+  "seed": 1,
+  "unfrozen_layers": 4,
+  "max_len": 32,
+  "encoder_lr": 2e-05,
+  "epochs": 15,
+  "frozen_encoder": true,
+  "edges": "all",
+  "val_source": "internal",
+  "train_frac": 1.0,
+  "test_roc_auc": 0.5803,
+  "best_val": 0.7918,
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.3476,
+      "train_auc": 0.6726,
+      "val_auc": 0.7439
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.3147,
+      "train_auc": 0.7245,
+      "val_auc": 0.7634
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.303,
+      "train_auc": 0.7572,
+      "val_auc": 0.7691
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.2923,
+      "train_auc": 0.7827,
+      "val_auc": 0.7802
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.2827,
+      "train_auc": 0.8037,
+      "val_auc": 0.7783
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.2706,
+      "train_auc": 0.8272,
+      "val_auc": 0.7843
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.2587,
+      "train_auc": 0.8473,
+      "val_auc": 0.7914
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.2466,
+      "train_auc": 0.866,
+      "val_auc": 0.7896
+    },
+    {
+      "epoch": 9,
+      "train_loss": 0.2362,
+      "train_auc": 0.8797,
+      "val_auc": 0.789
+    },
+    {
+      "epoch": 10,
+      "train_loss": 0.226,
+      "train_auc": 0.8932,
+      "val_auc": 0.7885
+    },
+    {
+      "epoch": 11,
+      "train_loss": 0.2169,
+      "train_auc": 0.9032,
+      "val_auc": 0.7918
+    },
+    {
+      "epoch": 12,
+      "train_loss": 0.2104,
+      "train_auc": 0.911,
+      "val_auc": 0.7895
+    },
+    {
+      "epoch": 13,
+      "train_loss": 0.204,
+      "train_auc": 0.9171,
+      "val_auc": 0.7904
+    },
+    {
+      "epoch": 14,
+      "train_loss": 0.2006,
+      "train_auc": 0.9204,
+      "val_auc": 0.7904
+    },
+    {
+      "epoch": 15,
+      "train_loss": 0.1984,
+      "train_auc": 0.9224,
+      "val_auc": 0.7897
+    }
+  ]
+}
