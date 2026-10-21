@@ -78,12 +78,14 @@ same comparison can change sign between them.
 - `*_fullsingle.json` — one model on the whole partition under the *default*
   recipe; the controlled arm for the ensembling comparison.
 - `*_ensnew.json` — five-fold ensemble under the *selected* recipe.
-- `pair_slice_*.json` — paired vulnerable/patched evaluation. Files carrying a
-  `_disposition` key use the corrected three-bucket slicing and store per-pair
-  win indicators; earlier versions, kept under
-  `results/pairslice_pre_disposition/`, used an `if`/`elif` with no `else` that
-  silently dropped the 561 pairs whose members are near-identical in both node
-  text and edges.
+- `pair_slice_*.json` — paired vulnerable/patched evaluation, five seeds. Each
+  file carries `_disposition` (all 2,067 eligible pairs, split 1,341 / 561 / 165
+  with none discarded) and per-pair win indicators, so intervals over pairs can
+  be bootstrapped without retraining. Superseded two-bucket versions are kept
+  under `results/pairslice_pre_disposition/`: they used an `if`/`elif` with no
+  `else` that silently dropped the 561 pairs whose members are near-identical in
+  both node text and edges, and their per-seed values did not reproduce on
+  repetition.
 
 Tags read `{protocol}-{backbone}[-e{edges}][-rev][-s{seed}][-{tag}]`, where
 protocol is `random`, `group` or `repo`, `-rev` makes every edge traversable in
