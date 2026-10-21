@@ -4,9 +4,9 @@ Measuring what learning-based vulnerability detection actually reports.
 
 A code property graph turns a function into a graph of its syntax, control flow
 and data dependencies; a graph neural network then classifies it. Accuracy in
-this literature is high and rising. This work rebuilds that pipeline over
-131,903 real vulnerabilities from 949 open-source projects and varies one factor
-at a time to find out what the reported numbers are measuring.
+this literature is high and rising. This work rebuilds that pipeline over 99,569
+functions from 701 open-source projects and varies one factor at a time to find
+out what the reported numbers are measuring.
 
 Two choices that papers in this area do not report turn out to move results more
 than the architectural differences between the systems being compared.
@@ -42,26 +42,27 @@ configuration separates a function from its own fix at better than chance.
 | `results/` | every run artifact the reported numbers are computed from |
 | `corpus/` | manifest: function id, label, CWE, repository, commit, clone family |
 
-### Corpus versus splits
+### What the experiments actually use
 
-The manifest in `corpus/` describes 131,903 functions. The split manifests
-contain **99,569**. The generator keeps a vulnerable record only if its CWE
-family has at least 500 members, and drops Devign entirely because it carries no
-CWE labels. Both filters exist for the ten-way CWE-family task; the binary
-experiments reuse the same `_family` splits and inherit them. Per source:
+Every result derives from **99,569 functions** across 701 projects, 13.4% of
+them vulnerable:
 
-| source | in corpus | in splits |
+| source | functions | vulnerable |
 |---|---|---|
-| BigVul | 89,273 | 86,143 |
-| CVEfixes | 15,346 | 13,426 |
-| Devign | 27,284 | 0 |
+| BigVul | 86,143 | 7,633 |
+| CVEfixes | 13,426 | 5,753 |
 
-Prevalence is 23.4% across the corpus and 13.4% across the splits. Every
-protocol uses the identical 99,569 functions, so comparisons between them are
-controlled; the filtered population is what they describe.
+The manifest in `corpus/` is larger, at 131,903, because it records the corpus
+as assembled before filtering. Two filters apply. A vulnerable record is kept
+only if its CWE family has at least 500 members, which the ten-way CWE
+classification requires and which the binary task inherits, so rare
+vulnerability types are absent from both. The same restriction removes the
+Devign subset entirely, since it carries no CWE labels; Devign appears in the
+manifest but contributes to no result. Every protocol uses the identical 99,569
+functions, so comparisons between them are controlled.
 
 Code property graphs are not redistributed. They are derived data, regenerated
-from the public BigVul, CVEfixes and Devign corpora by `build_dataset_*.py`,
+from the public BigVul and CVEfixes corpora by `build_dataset_*.py`,
 which needs Joern 4.0 and about a day of wall time.
 
 ## Reading the results
