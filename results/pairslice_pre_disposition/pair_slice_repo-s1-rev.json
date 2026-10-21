@@ -1,0 +1,22 @@
+{
+  "structure-only": {
+    "n_pairs": 165,
+    "graph": 0.5272727272727272,
+    "nograph": 0.38181818181818183,
+    "delta": 0.1455,
+    "graph_mean_score_vuln": 0.2932,
+    "graph_mean_score_patched": 0.2865,
+    "nograph_mean_score_vuln": 0.3384,
+    "nograph_mean_score_patched": 0.3348
+  },
+  "text-differs": {
+    "n_pairs": 1341,
+    "graph": 0.42878448918717377,
+    "nograph": 0.40566741237882176,
+    "delta": 0.0231,
+    "graph_mean_score_vuln": 0.2372,
+    "graph_mean_score_patched": 0.2642,
+    "nograph_mean_score_vuln": 0.3135,
+    "nograph_mean_score_patched": 0.3446
+  }
+}

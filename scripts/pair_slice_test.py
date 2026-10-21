@@ -110,18 +110,30 @@ def main():
     print(f"[pairs] {len(pairs)} vulnerable/patched pairs inside the test partition",
           flush=True)
 
-    sliced = {"structure-only": [], "text-differs": []}
+    # Every eligible pair lands in exactly one bucket. An earlier version used
+    # an if/elif with no else, which silently dropped the pairs whose members
+    # are near-identical in BOTH node text and edges -- 27% of the total. Those
+    # are the cases where the patch leaves no trace in the graph at all, which
+    # is a result rather than an exclusion.
+    sliced = {"structure-only": [], "text-differs": [], "near-identical": []}
+    unparseable = 0
     for vul, pat in pairs:
         A = summarise(corpus[vul]["dot_path"]); B = summarise(corpus[pat]["dot_path"])
         if not A or not B:
+            unparseable += 1
             continue
         nj, ej = jac(A[0], B[0]), jac(A[1], B[1])
-        if nj >= 0.95 and ej < 0.95:
-            sliced["structure-only"].append((vul, pat))
-        elif nj < 0.95:
+        if nj < 0.95:
             sliced["text-differs"].append((vul, pat))
+        elif ej < 0.95:
+            sliced["structure-only"].append((vul, pat))
+        else:
+            sliced["near-identical"].append((vul, pat))
+    assert sum(len(v) for v in sliced.values()) + unparseable == len(pairs), \
+        "pair disposition does not account for every eligible pair"
     for k, v in sliced.items():
         print(f"  {k:16s} {len(v)} pairs")
+    print(f"  {'unparseable':16s} {unparseable} pairs")
 
     results = {}
     for arm in ("graph", "nograph"):
@@ -139,7 +151,8 @@ def main():
         del m; torch.cuda.empty_cache()
 
     print(f"\n{'slice':18s}{'n':>6s}{'graph':>10s}{'no graph':>11s}{'delta':>9s}")
-    out = {}
+    out = {"_disposition": {k: len(v) for k, v in sliced.items()},
+           "_unparseable": unparseable, "_eligible_pairs": len(pairs)}
     for name, ps in sliced.items():
         if not ps:
             continue
@@ -157,7 +170,15 @@ def main():
                      "graph_mean_score_vuln": round(float(np.mean(gv)), 4),
                      "graph_mean_score_patched": round(float(np.mean(gp)), 4),
                      "nograph_mean_score_vuln": round(float(np.mean(nv)), 4),
-                     "nograph_mean_score_patched": round(float(np.mean(np_)), 4)}
+                     "nograph_mean_score_patched": round(float(np.mean(np_)), 4),
+                     # per-pair win indicators, so the interval over pairs can be
+                     # bootstrapped afterwards without retraining
+                     "wins_graph": [bool(results["graph"][sid_to_row[v]] >
+                                         results["graph"][sid_to_row[p_]])
+                                    for v, p_ in ps],
+                     "wins_nograph": [bool(results["nograph"][sid_to_row[v]] >
+                                           results["nograph"][sid_to_row[p_]])
+                                      for v, p_ in ps]}
         print(f"{name:18s}{len(ps):6d}{acc['graph']:10.4f}{acc['nograph']:11.4f}{d:+9.4f}")
 
     sfx = ("" if a.seed is None else f"-s{a.seed}") \

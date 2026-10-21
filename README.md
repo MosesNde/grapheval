@@ -42,6 +42,24 @@ configuration separates a function from its own fix at better than chance.
 | `results/` | every run artifact the reported numbers are computed from |
 | `corpus/` | manifest: function id, label, CWE, repository, commit, clone family |
 
+### Corpus versus splits
+
+The manifest in `corpus/` describes 131,903 functions. The split manifests
+contain **99,569**. The generator keeps a vulnerable record only if its CWE
+family has at least 500 members, and drops Devign entirely because it carries no
+CWE labels. Both filters exist for the ten-way CWE-family task; the binary
+experiments reuse the same `_family` splits and inherit them. Per source:
+
+| source | in corpus | in splits |
+|---|---|---|
+| BigVul | 89,273 | 86,143 |
+| CVEfixes | 15,346 | 13,426 |
+| Devign | 27,284 | 0 |
+
+Prevalence is 23.4% across the corpus and 13.4% across the splits. Every
+protocol uses the identical 99,569 functions, so comparisons between them are
+controlled; the filtered population is what they describe.
+
 Code property graphs are not redistributed. They are derived data, regenerated
 from the public BigVul, CVEfixes and Devign corpora by `build_dataset_*.py`,
 which needs Joern 4.0 and about a day of wall time.
@@ -59,6 +77,12 @@ same comparison can change sign between them.
 - `*_fullsingle.json` — one model on the whole partition under the *default*
   recipe; the controlled arm for the ensembling comparison.
 - `*_ensnew.json` — five-fold ensemble under the *selected* recipe.
+- `pair_slice_*.json` — paired vulnerable/patched evaluation. Files carrying a
+  `_disposition` key use the corrected three-bucket slicing and store per-pair
+  win indicators; earlier versions, kept under
+  `results/pairslice_pre_disposition/`, used an `if`/`elif` with no `else` that
+  silently dropped the 561 pairs whose members are near-identical in both node
+  text and edges.
 
 Tags read `{protocol}-{backbone}[-e{edges}][-rev][-s{seed}][-{tag}]`, where
 protocol is `random`, `group` or `repo`, `-rev` makes every edge traversable in
