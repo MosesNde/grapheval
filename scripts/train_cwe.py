@@ -515,6 +515,40 @@ def main() -> None:
         res = run_stage2(G, cfg, device, base_dim, vocab, nrel, fams, tag,
                          neg_cap=a.neg_cap)
 
+    # Provenance: these artifacts previously recorded no configuration at all,
+    # so the recipe behind a stage-1 number could only be recovered from the
+    # launcher script. Seed is taken from cfg because --seed defaults to None.
+    import platform, subprocess
+    try:
+        git = subprocess.run(["git", "-C", str(ROOT), "rev-parse", "--short", "HEAD"],
+                             capture_output=True, text=True).stdout.strip() or None
+    except Exception:
+        git = None
+    res["config"] = {
+        "stage": a.stage, "mode": a.mode, "backbone": cfg["backbone"],
+        "edges": a.edges, "edge_ann": a.edge_ann,
+        "reverse_edges": a.reverse_edges, "features": a.features,
+        "layers": a.layers, "seed": cfg["seed"],
+        "epochs": cfg["epochs"], "batch_size": cfg["batch_size"],
+        "lr": cfg["lr"], "early_stop_patience": cfg["early_stop_patience"],
+        "checkpoint_selection": "best val ROC-AUC on the held-out validation "
+                                "partition, identical for every fold",
+        "optimizer": "AdamW", "schedule": "ReduceLROnPlateau",
+        "precision": "fp32",
+    }
+    if a.stage == "1":
+        res["config"].update({
+            "n_folds": 5,
+            "training_data": "four fifths of train partition per member",
+            "aggregation": "mean of member probabilities (ensemble_mean_only); "
+                           "LightGBM meta-learner over out-of-fold "
+                           "probabilities (ensemble_then_meta)",
+        })
+    res["env"] = {"python": platform.python_version(),
+                  "torch": torch.__version__,
+                  "cuda": torch.version.cuda,
+                  "device": torch.cuda.get_device_name(0) if torch.cuda.is_available() else None,
+                  "git_commit": git}
     path = OUT / f"{tag}_stage{a.stage}.json"
     path.write_text(json.dumps(res, indent=2))
     print(json.dumps(res, indent=2)[:3000])

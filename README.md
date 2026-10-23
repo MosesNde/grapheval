@@ -19,18 +19,20 @@ and testing on the same projects, 29% surviving every control.
 
 **The training configuration.** Fixing the recipe by grid search on the
 validation partition alone, with test withheld until the ranking was settled, is
-worth a further 0.032 ROC-AUC — more than any representational choice measured
-here. It also decides whether other choices register at all: five-fold averaging
-gains 0.033 under library defaults and nothing under the selected recipe, and
-the same holds for making graph edges traversable in both directions. Across the
-twelve configurations searched, validation ranks test only weakly, so roughly a
-point of ROC-AUC is unreachable without consulting the test partition.
+worth a further 0.065 ROC-AUC for a single model and 0.033 for the five-fold
+ensemble, in both cases more than any representational choice measured here. It
+also decides whether other choices register at all: five-fold averaging gains
+0.033 under library defaults and nothing under the selected recipe, and the same
+holds for making graph edges traversable in both directions. Across the twelve
+configurations searched, validation ranks test only weakly, so roughly a point of
+ROC-AUC is unreachable without consulting the test partition.
 
-Two further results do not depend on either choice. Relation labels — knowing an
-edge carries data dependence rather than syntactic containment — are worth
-0.002 (95% CI −0.005 to +0.010) against a baseline that holds edge direction
-fixed. And on the 2,067 vulnerable/patched function pairs held in the test
-partition, where project and coding style cancel by construction, no
+Two further results do not depend on either choice. Distinguishing the relation
+labels, so that an edge carrying data dependence is told apart from one carrying
+syntactic containment, is worth 0.002 (95% CI −0.005 to +0.010) against a
+baseline that holds edge direction fixed. And on the 2,067 vulnerable/patched
+function pairs held in the test partition, where project and coding style cancel
+by construction, no
 configuration separates a function from its own fix at better than chance.
 
 ## Layout
@@ -71,14 +73,21 @@ Every reported figure derives from `results/*.json`. The suffix says which
 training configuration produced it, and that distinction is load-bearing: the
 same comparison can change sign between them.
 
-- `*_stage1.json` — five-fold ensemble, library defaults.
+- `*_stage1.json`: five-fold ensemble, library defaults.
   `["ensemble_mean_only"]["roc_auc"]`; `["per_fold_roc_auc"]` holds the members.
-- `*_single.json` — one model on the whole training partition.
+- `*_single.json`: one model on the whole training partition.
   `["single_model"]["roc_auc"]`.
-- `*_fullsingle.json` — one model on the whole partition under the *default*
+- `*_fullsingle.json`: one model on the whole partition under the *default*
   recipe; the controlled arm for the ensembling comparison.
-- `*_ensnew.json` — five-fold ensemble under the *selected* recipe.
-- `pair_slice_*.json` — paired vulnerable/patched evaluation, five seeds. Each
+- `*_ensnew.json`: five-fold ensemble under `train_single.py`'s *defaults*
+  (15 epochs, lr 5e-4), not the selected recipe.
+- `*_ensnew-valsel.json`: five-fold ensemble under the *selected* recipe
+  (30 epochs, effective batch 128, lr 2e-4). This is the matched counterpart to
+  the `-valsel` single-model runs; the pair of suffixes exists because an earlier
+  launcher passed no hyperparameters, so the two arms of the comparison ran under
+  different recipes. Every file written since carries a `config` and `env` block
+  recording the recipe, aggregation, checkpoint criterion and library versions.
+- `pair_slice_*.json`: paired vulnerable/patched evaluation, five seeds. Each
   file carries `_disposition` (all 2,067 eligible pairs, split 1,341 / 561 / 165
   with none discarded) and per-pair win indicators, so intervals over pairs can
   be bootstrapped without retraining. Superseded two-bucket versions are kept

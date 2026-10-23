@@ -47,6 +47,7 @@ def main() -> None:
     ap.add_argument("--accum", type=int, default=8)
     ap.add_argument("--warmup-frac", type=float, default=0.1)
     ap.add_argument("--lr", type=float, default=5e-4)
+    ap.add_argument("--tag", default="", help="suffix for the output filename")
     a = ap.parse_args()
 
     cfg = dict(T.CONFIG)
@@ -111,11 +112,38 @@ def main() -> None:
     res = binary_metrics(ty, mean_p, ty.mean())
     tag = (f"{a.mode}-{a.backbone}" + ("-rev" if a.reverse_edges else "")
            + ("" if a.seed is None else f"-s{a.seed}"))
-    out = ROOT / "runs" / f"{tag}_ensnew.json"
-    out.write_text(json.dumps({"ensemble_new_recipe": res,
-                               "per_fold_roc_auc": per_fold,
-                               "fold_mean": round(float(np.mean(per_fold)), 4),
-                               "seed": cfg["seed"]}, indent=2))
+    import platform, subprocess
+    try:
+        git = subprocess.run(["git", "-C", str(ROOT), "rev-parse", "--short", "HEAD"],
+                             capture_output=True, text=True).stdout.strip() or None
+    except Exception:
+        git = None
+    # Provenance: the hyperparameters are recorded explicitly because an earlier
+    # sweep ran this file at its defaults while the single-model arm used the
+    # validation-selected recipe, producing an unmatched 2x2 that the artifacts
+    # could not be used to detect.
+    out = ROOT / "runs" / f"{tag}_ensnew{'-' + a.tag if a.tag else ''}.json"
+    out.write_text(json.dumps({
+        "ensemble_new_recipe": res,
+        "per_fold_roc_auc": per_fold,
+        "fold_mean": round(float(np.mean(per_fold)), 4),
+        "seed": cfg["seed"],
+        "config": {"mode": a.mode, "backbone": a.backbone,
+                   "reverse_edges": a.reverse_edges,
+                   "epochs": a.epochs, "batch_size": a.batch_size,
+                   "accum": a.accum, "effective_batch": a.batch_size * a.accum,
+                   "lr": a.lr, "warmup_frac": a.warmup_frac,
+                   "n_folds": 5, "aggregation": "mean of member probabilities",
+                   "checkpoint_selection": "best val ROC-AUC on the held-out "
+                                           "validation partition",
+                   "optimizer": "AdamW", "weight_decay": 0.01,
+                   "schedule": "linear warmup then cosine", "precision": "bf16"},
+        "env": {"python": platform.python_version(),
+                "torch": torch.__version__,
+                "cuda": torch.version.cuda,
+                "device": torch.cuda.get_device_name(0) if torch.cuda.is_available() else None,
+                "git_commit": git},
+    }, indent=2))
     print(f"[done] ensemble roc_auc={res['roc_auc']:.4f} "
           f"(fold mean {np.mean(per_fold):.4f}) -> {out}", flush=True)
 

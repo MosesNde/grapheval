@@ -4,19 +4,21 @@ train_single.py — one model on the whole training partition, instead of a
 five-fold ensemble.
 
 train_cwe.py reports a 5-fold ensemble in which each member trains on 80% of the
-training partition and picks its epoch on a slice carved from that same 80%.
-Under a repository-disjoint protocol that slice shares repositories with the
-data being fitted, so early stopping rewards memorisation. Training one model on
-the whole partition and selecting on the held-out validation repositories scores
-higher: 0.652 against 0.618 on `repo` with a bidirectional graph.
+training partition. Both procedures pass the same held-out validation partition
+to early stopping, whose repositories appear in neither training nor test, so
+epoch selection is not what separates them. What separates them is the number of
+models averaged, how much data each sees, and the training recipe.
 
-Everything else is held to train_cwe's settings so the two are comparable: same
-cached node features, same ablations, same architecture, same corpus and splits.
-What differs is the training procedure, and that is the point of the file.
+Corpus, splits, cached node features, architecture and ablations are identical to
+train_cwe.py's, so those three factors are the only ones that vary. Results
+section "Ensembling and recipe, separated" measures each of them.
 
-Schedule follows the runs that produced 0.652: AdamW, linear warmup over 10% of
-steps then cosine decay, gradient accumulation to an effective batch of 128,
-bf16 autocast, 15 epochs, model chosen by validation ROC-AUC.
+This file's defaults are its own recipe, not train_cwe's: AdamW, linear warmup
+over 10% of steps then cosine decay, gradient accumulation to an effective batch
+of 128, bf16 autocast, 15 epochs, model chosen by validation ROC-AUC. The recipe
+reported in the paper was chosen by grid search on validation alone and is
+passed explicitly (--epochs 30 --batch-size 16 --accum 8 --lr 2e-4); see
+run_valselected_seeds.sh. Do not read the defaults as the selected recipe.
 
     python3 train_single.py --mode repo --reverse-edges --seed 1
 """
@@ -161,10 +163,39 @@ def main():
            + ("" if a.seed is None else f"-s{a.seed}")
            + (f"-nc{a.node_cap}" if a.node_cap else "")
            + (f"-{a.tag}" if a.tag else ""))
+    import platform, subprocess
+    try:
+        git = subprocess.run(["git", "-C", str(ROOT), "rev-parse", "--short", "HEAD"],
+                             capture_output=True, text=True).stdout.strip() or None
+    except Exception:
+        git = None
+    # Provenance: recorded explicitly because this file's defaults are not the
+    # recipe reported in the paper, and artifacts written before this block
+    # could only be attributed to a recipe by reading the launcher script.
     out = {"single_model": res, "best_val_auc": round(float(best), 4),
            "history": hist, "mode": a.mode, "backbone": a.backbone,
            "edges": a.edges, "reverse_edges": a.reverse_edges,
-           "features": a.features, "seed": cfg["seed"]}
+           "features": a.features, "seed": cfg["seed"],
+           "config": {"mode": a.mode, "backbone": a.backbone, "edges": a.edges,
+                      "reverse_edges": a.reverse_edges, "features": a.features,
+                      "task": a.task, "split_suffix": a.split_suffix,
+                      "epochs": a.epochs, "batch_size": a.batch_size,
+                      "accum": a.accum,
+                      "effective_batch": a.batch_size * a.accum,
+                      "lr": a.lr, "warmup_frac": a.warmup_frac,
+                      "node_cap": a.node_cap, "seed": cfg["seed"],
+                      "n_models": 1, "training_data": "whole train partition",
+                      "aggregation": None,
+                      "checkpoint_selection": "best val ROC-AUC on the held-out "
+                                              "validation partition",
+                      "optimizer": "AdamW", "weight_decay": 0.01,
+                      "schedule": "linear warmup then cosine",
+                      "precision": "bf16"},
+           "env": {"python": platform.python_version(),
+                   "torch": torch.__version__,
+                   "cuda": torch.version.cuda,
+                   "device": torch.cuda.get_device_name(0) if torch.cuda.is_available() else None,
+                   "git_commit": git}}
     p = ROOT / "runs" / f"{tag}_single.json"
     p.write_text(json.dumps(out, indent=2)); print(f"-> {p}")
 

@@ -1,0 +1,54 @@
+{
+  "ensemble_new_recipe": {
+    "prevalence": 0.1888,
+    "macro_f1": 0.4645,
+    "pr_auc": 0.2932,
+    "roc_auc": 0.6514,
+    "mcc": 0.0546,
+    "fpr": 0.0055,
+    "precision": 0.4295,
+    "recall": 0.0178,
+    "confusion": {
+      "tn": 16065,
+      "fp": 89,
+      "fn": 3693,
+      "tp": 67
+    },
+    "recall_at_fpr_0.01": 0.0261,
+    "recall_at_fpr_0.05": 0.1255
+  },
+  "per_fold_roc_auc": [
+    0.6349,
+    0.6499,
+    0.6405,
+    0.6597,
+    0.6382
+  ],
+  "fold_mean": 0.6446,
+  "seed": 1,
+  "config": {
+    "mode": "repo",
+    "backbone": "gat",
+    "reverse_edges": true,
+    "epochs": 30,
+    "batch_size": 16,
+    "accum": 8,
+    "effective_batch": 128,
+    "lr": 0.0002,
+    "warmup_frac": 0.1,
+    "n_folds": 5,
+    "aggregation": "mean of member probabilities",
+    "checkpoint_selection": "best val ROC-AUC on the held-out validation partition",
+    "optimizer": "AdamW",
+    "weight_decay": 0.01,
+    "schedule": "linear warmup then cosine",
+    "precision": "bf16"
+  },
+  "env": {
+    "python": "3.12.3",
+    "torch": "2.12.0+cu130",
+    "cuda": "13.0",
+    "device": "NVIDIA RTX PRO 6000 Blackwell Max-Q Workstation Edition",
+    "git_commit": null
+  }
+}

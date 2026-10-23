@@ -99,12 +99,35 @@ def main() -> None:
     y = np.array([int(g.y.item()) for g in te])
     res = binary_metrics(y, p, y.mean())
 
+    import platform, subprocess
+    try:
+        git = subprocess.run(["git", "-C", str(ROOT), "rev-parse", "--short", "HEAD"],
+                             capture_output=True, text=True).stdout.strip() or None
+    except Exception:
+        git = None
     out = ROOT / "runs" / f"{tag}_fullsingle.json"
     out.write_text(json.dumps({"single_full_partition": res,
                                "n_train": len(tr), "n_test": len(te),
                                "cfg": {k: cfg[k] for k in
                                        ("backbone","batch_size","epochs",
-                                        "early_stop_patience","lr","seed")}}, indent=2))
+                                        "early_stop_patience","lr","seed")},
+                               "config": {
+                                   "n_models": 1,
+                                   "training_data": "whole train partition",
+                                   "aggregation": None,
+                                   "checkpoint_selection":
+                                       "best val ROC-AUC on the held-out "
+                                       "validation partition",
+                                   "optimizer": "AdamW",
+                                   "schedule": "ReduceLROnPlateau",
+                                   "precision": "fp32",
+                                   "recipe": "stage-1 inheritance (train_cwe CONFIG)"},
+                               "env": {
+                                   "python": platform.python_version(),
+                                   "torch": torch.__version__,
+                                   "cuda": torch.version.cuda,
+                                   "device": torch.cuda.get_device_name(0) if torch.cuda.is_available() else None,
+                                   "git_commit": git}}, indent=2))
     print(f"[done] roc_auc={res['roc_auc']:.4f} -> {out}", flush=True)
 
 
