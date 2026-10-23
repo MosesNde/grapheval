@@ -1,0 +1,81 @@
+# arm|extra flags|tag
+random||
+random|--seed 1|
+random|--seed 2|
+random|--seed 3|
+random|--seed 4|
+group||
+group|--seed 1|
+group|--seed 2|
+group|--seed 3|
+group|--seed 4|
+repo||
+repo|--seed 1|
+repo|--seed 2|
+repo|--seed 3|
+repo|--seed 4|
+random|--backbone gcn|
+group|--backbone gcn|
+repo|--backbone gcn|
+random|--backbone gin|
+group|--backbone gin|
+repo|--backbone gin|
+random|--backbone gtrans|
+group|--backbone gtrans|
+repo|--backbone gtrans|
+repo|--edges none|
+repo|--edges none --seed 1|
+repo|--edges none --seed 2|
+repo|--edges none --seed 3|
+repo|--edges none --seed 4|
+repo|--edges untyped|
+repo|--edges untyped --seed 1|
+repo|--edges untyped --seed 2|
+repo|--edges untyped --seed 3|
+repo|--edges untyped --seed 4|
+repo|--reverse-edges|
+repo|--reverse-edges --seed 1|
+repo|--reverse-edges --seed 2|
+repo|--reverse-edges --seed 3|
+repo|--reverse-edges --seed 4|
+random|--edges none|
+random|--edges none --seed 1|
+random|--edges none --seed 2|
+random|--edges none --seed 3|
+random|--edges none --seed 4|
+random|--reverse-edges|
+random|--reverse-edges --seed 1|
+random|--reverse-edges --seed 2|
+random|--features type-only|
+repo|--features type-only|
+random|--features topology|
+repo|--features topology|
+random|--cache /home/moses/graph_cache_bow  |bow
+random|--cache /home/moses/graph_cache_bow  --seed 1|bow
+random|--cache /home/moses/graph_cache_bow  --seed 2|bow
+random|--cache /home/moses/graph_cache_bow  --seed 3|bow
+random|--cache /home/moses/graph_cache_bow  --seed 4|bow
+random|--cache /home/moses/graph_cache_bow --edges none |bow
+random|--cache /home/moses/graph_cache_bow --edges none --seed 1|bow
+random|--cache /home/moses/graph_cache_bow --edges none --seed 2|bow
+random|--cache /home/moses/graph_cache_bow --edges none --seed 3|bow
+random|--cache /home/moses/graph_cache_bow --edges none --seed 4|bow
+repo|--cache /home/moses/graph_cache_bow  |bow
+repo|--cache /home/moses/graph_cache_bow  --seed 1|bow
+repo|--cache /home/moses/graph_cache_bow  --seed 2|bow
+repo|--cache /home/moses/graph_cache_bow  --seed 3|bow
+repo|--cache /home/moses/graph_cache_bow  --seed 4|bow
+repo|--cache /home/moses/graph_cache_bow --edges none |bow
+repo|--cache /home/moses/graph_cache_bow --edges none --seed 1|bow
+repo|--cache /home/moses/graph_cache_bow --edges none --seed 2|bow
+repo|--cache /home/moses/graph_cache_bow --edges none --seed 3|bow
+repo|--cache /home/moses/graph_cache_bow --edges none --seed 4|bow
+random|--task binary --split-suffix _devign |dv
+random|--task binary --split-suffix _devign --seed 1|dv
+random|--task binary --split-suffix _devign --seed 2|dv
+group|--task binary --split-suffix _devign |dv
+group|--task binary --split-suffix _devign --seed 1|dv
+group|--task binary --split-suffix _devign --seed 2|dv
+repo|--task binary --split-suffix _devign |dv
+repo|--task binary --split-suffix _devign --seed 1|dv
+repo|--task binary --split-suffix _devign --seed 2|dv

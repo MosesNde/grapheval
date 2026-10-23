@@ -114,4 +114,9 @@ procedure comparison. Use `splits/` directly for an exact reproduction, or
 `make_splits.py` to regenerate. Scripts carry absolute paths under `/home/moses`;
 adjust `ROOT` and `--cache` for your environment.
 
+The `run_*.sh` launchers reproduce whole tables rather than single runs. Those
+that sweep a queue read it from a job list, one `mode|extra args|tag` record per
+line: `run_single_sweep.sh` reads `single_jobs.txt`, and the
+`run_repopulate*.sh` family reads `repopulate_jobs.txt`.
+
 A citation will be added on publication.
