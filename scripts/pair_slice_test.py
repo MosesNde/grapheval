@@ -57,6 +57,34 @@ def scores(model, graphs, dev, bs=128):
     return np.concatenate(out)
 
 
+TOL = 1e-6
+
+def disposition(sv, sp, tol=0.0):
+    w = l = t = 0
+    for a, b in zip(sv, sp):
+        if abs(a - b) <= tol:
+            t += 1
+        elif a > b:
+            w += 1
+        else:
+            l += 1
+    return w, l, t
+
+def boot_ci(sv, sp, tol, n_boot=10000, seed=0):
+    """Percentile interval over PAIRS for the tie-aware accuracy. Pairs are
+    the resampling unit; seed variance is reported separately across runs."""
+    rng = np.random.default_rng(seed)
+    v = np.asarray(sv); q = np.asarray(sp)
+    d = v - q
+    per_pair = np.where(np.abs(d) <= tol, 0.5, (d > 0).astype(float))
+    n = len(per_pair)
+    if n == 0:
+        return None, None
+    idx = rng.integers(0, n, size=(n_boot, n))
+    bs = per_pair[idx].mean(axis=1)
+    return float(np.percentile(bs, 2.5)), float(np.percentile(bs, 97.5))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--mode", default="repo")
@@ -64,6 +92,9 @@ def main():
     ap.add_argument("--seed", type=int, default=None)
     ap.add_argument("--reverse-edges", action="store_true")
     ap.add_argument("--layers", type=int, default=3)
+    # The leading dash is added here rather than passed on the command line:
+    # argparse reads a value beginning with "-" as the next option and exits 2.
+    ap.add_argument("--tag", default="")
     a = ap.parse_args()
 
     cfg = dict(T.CONFIG); cfg.update(batch_size=256, num_workers=6,
@@ -150,40 +181,100 @@ def main():
         results[arm] = s
         del m; torch.cuda.empty_cache()
 
-    print(f"\n{'slice':18s}{'n':>6s}{'graph':>10s}{'no graph':>11s}{'delta':>9s}")
+    # A strict win rate (score_vuln > score_patched) charges every tie as a
+    # failure. Where a patch leaves no trace in the graph the two members can
+    # featurise identically, in which case the model returns the same score and
+    # the pair is genuinely undecidable rather than wrong. So the disposition of
+    # every pair is reported as win / loss / tie, and two accuracies alongside
+    # it: the strict rate, and a tie-aware rate that credits a tie as half a
+    # win, which is the value a coin flip on ties would earn in expectation.
+    #
+    # EXACT_TIE is float equality on the model's score. TOL_TIE repeats the
+    # count with a 1e-6 band so the paper can state the tie mass is a property
+    # of the pairs rather than of the tolerance.
+    print(f"\n{'slice':18s}{'n':>6s}{'arm':>9s}{'W':>6s}{'L':>6s}{'T':>5s}"
+          f"{'strict':>9s}{'tieaware':>10s}{'95% CI':>18s}")
     out = {"_disposition": {k: len(v) for k, v in sliced.items()},
-           "_unparseable": unparseable, "_eligible_pairs": len(pairs)}
+           "_unparseable": unparseable, "_eligible_pairs": len(pairs),
+           "_metric": {"strict": "score_vuln > score_patched; ties count as losses",
+                       "tie_aware": "(wins + 0.5*ties)/n_pairs",
+                       "tie_definition": "exact float equality of the model score",
+                       "tie_tolerance_variant": TOL,
+                       "ci": "2.5/97.5 percentile bootstrap over pairs, 10,000 "
+                             "resamples, resampling unit = pair"}}
     for name, ps in sliced.items():
         if not ps:
             continue
+        # Pair identities, in the same order as every per-pair array below.
+        # The cross-seed interval averages each pair's outcome over seeds, so
+        # alignment between runs must be checkable rather than assumed.
+        rec = {"n_pairs": len(ps),
+               "pair_vuln_sid": [str(v) for v, _ in ps],
+               "pair_patched_sid": [str(p_) for _, p_ in ps]}
         acc = {}
         for arm in ("graph", "nograph"):
-            s = results[arm]
-            wins = [s[sid_to_row[v]] > s[sid_to_row[p]] for v, p in ps]
-            acc[arm] = float(np.mean(wins))
-        d = acc["graph"] - acc["nograph"]
-        gv = [float(results["graph"][sid_to_row[v]]) for v, _ in ps]
-        gp = [float(results["graph"][sid_to_row[p_]]) for _, p_ in ps]
-        nv = [float(results["nograph"][sid_to_row[v]]) for v, _ in ps]
-        np_ = [float(results["nograph"][sid_to_row[p_]]) for _, p_ in ps]
-        out[name] = {"n_pairs": len(ps), **acc, "delta": round(d, 4),
-                     "graph_mean_score_vuln": round(float(np.mean(gv)), 4),
-                     "graph_mean_score_patched": round(float(np.mean(gp)), 4),
-                     "nograph_mean_score_vuln": round(float(np.mean(nv)), 4),
-                     "nograph_mean_score_patched": round(float(np.mean(np_)), 4),
-                     # per-pair win indicators, so the interval over pairs can be
-                     # bootstrapped afterwards without retraining
-                     "wins_graph": [bool(results["graph"][sid_to_row[v]] >
-                                         results["graph"][sid_to_row[p_]])
-                                    for v, p_ in ps],
-                     "wins_nograph": [bool(results["nograph"][sid_to_row[v]] >
-                                           results["nograph"][sid_to_row[p_]])
-                                      for v, p_ in ps]}
-        print(f"{name:18s}{len(ps):6d}{acc['graph']:10.4f}{acc['nograph']:11.4f}{d:+9.4f}")
+            sc = results[arm]
+            sv = [float(sc[sid_to_row[v]]) for v, _ in ps]
+            sp = [float(sc[sid_to_row[p_]]) for _, p_ in ps]
+            w, l, t = disposition(sv, sp)
+            wt, lt, tt = disposition(sv, sp, TOL)
+            strict = w / len(ps)
+            tie_aware = (w + 0.5 * t) / len(ps)
+            lo, hi = boot_ci(sv, sp, 0.0, seed=cfg["seed"] or 0)
+            acc[arm] = strict
+            rec[arm] = strict                      # back-compatible key
+            rec[f"{arm}_wins"] = w
+            rec[f"{arm}_losses"] = l
+            rec[f"{arm}_ties"] = t
+            rec[f"{arm}_ties_tol{TOL:g}"] = tt
+            rec[f"{arm}_strict_acc"] = round(strict, 4)
+            rec[f"{arm}_tie_aware_acc"] = round(tie_aware, 4)
+            rec[f"{arm}_tie_aware_ci95"] = [round(lo, 4), round(hi, 4)]
+            rec[f"{arm}_mean_score_vuln"] = round(float(np.mean(sv)), 4)
+            rec[f"{arm}_mean_score_patched"] = round(float(np.mean(sp)), 4)
+            # Raw per-pair scores, so wins, losses, ties, any tie tolerance and
+            # any interval can be recomputed later without retraining. The
+            # previous version stored only win booleans, which had already
+            # folded ties into losses and could not be undone.
+            # Full precision, not rounded: rounding to 6 decimals turns a pair
+            # separated by ~1e-7 into an exact tie on recomputation, which
+            # shifted a recomputed accuracy by 0.002 against the counts above.
+            rec[f"{arm}_score_vuln"] = sv
+            rec[f"{arm}_score_patched"] = sp
+            rec[f"{arm}_outcome"] = [1.0 if a > b else (0.0 if b > a else 0.5)
+                                     for a, b in zip(sv, sp)]
+            rec[f"wins_{arm}"] = [bool(a > b) for a, b in zip(sv, sp)]
+            print(f"{name:18s}{len(ps):6d}{arm:>9s}{w:6d}{l:6d}{t:5d}"
+                  f"{strict:9.4f}{tie_aware:10.4f}   [{lo:.3f},{hi:.3f}]")
+        rec["delta"] = round(acc["graph"] - acc["nograph"], 4)
+        rec["delta_tie_aware"] = round(rec["graph_tie_aware_acc"]
+                                       - rec["nograph_tie_aware_acc"], 4)
+        out[name] = rec
 
     sfx = ("" if a.seed is None else f"-s{a.seed}") \
+          + (f"-{a.tag}" if a.tag else "") \
           + ("-rev" if a.reverse_edges else "") \
           + ("" if a.layers == 3 else f"-L{a.layers}")
+    import platform, subprocess
+    try:
+        git = subprocess.run(["git", "-C", str(ROOT), "rev-parse", "--short", "HEAD"],
+                             capture_output=True, text=True).stdout.strip() or None
+    except Exception:
+        git = None
+    out["config"] = {"mode": a.mode, "epochs": a.epochs, "seed": cfg["seed"],
+                     "reverse_edges": a.reverse_edges, "layers": a.layers,
+                     "batch_size": cfg["batch_size"],
+                     "early_stop_patience": cfg["early_stop_patience"],
+                     "arms": ["graph", "nograph"],
+                     "nograph_arm": "same trained pipeline with edge_index and "
+                                    "edge_type emptied, so only the graph is removed",
+                     "checkpoint_selection": "train_expert early stopping, "
+                                             "patience 15",
+                     "slice_threshold": "Jaccard 0.95 on node text and on edges"}
+    out["env"] = {"python": platform.python_version(), "torch": torch.__version__,
+                  "cuda": torch.version.cuda,
+                  "device": torch.cuda.get_device_name(0) if torch.cuda.is_available() else None,
+                  "git_commit": git}
     p = ROOT / "runs" / f"pair_slice_{a.mode}{sfx}.json"
     p.write_text(json.dumps(out, indent=2))
     print(f"\n-> {p}")

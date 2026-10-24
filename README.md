@@ -87,10 +87,20 @@ same comparison can change sign between them.
   launcher passed no hyperparameters, so the two arms of the comparison ran under
   different recipes. Every file written since carries a `config` and `env` block
   recording the recipe, aggregation, checkpoint criterion and library versions.
-- `pair_slice_*.json`: paired vulnerable/patched evaluation, five seeds. Each
-  file carries `_disposition` (all 2,067 eligible pairs, split 1,341 / 561 / 165
-  with none discarded) and per-pair win indicators, so intervals over pairs can
-  be bootstrapped without retraining. Superseded two-bucket versions are kept
+- `pair_slice_*-tieaware.json`: paired vulnerable/patched evaluation, five
+  seeds, with the disposition of every pair as win / loss / tie. Each file
+  carries the strict rate (wins only, ties charged as failures), the tie-aware
+  rate (a tie credited as half a win), a pair-level bootstrap interval, tie
+  counts under both an exact and a 1e-6 definition, and the raw per-pair scores,
+  so any tie rule or interval can be recomputed without retraining.
+  `analyze_pairslice_tieaware.py` aggregates the five runs and asserts that
+  pairs are aligned across seeds by sample id rather than assuming it. Ties
+  matter on one slice only: where the patch leaves no trace in the graph, 22.6%
+  of pairs receive the same score for both members, and charging those as
+  failures is what had put that slice below chance.
+- `pair_slice_*.json` without that suffix: the earlier runs, which stored only
+  per-pair win booleans. Ties had already been folded into losses at write time
+  and cannot be recovered from them. Superseded two-bucket versions are kept
   under `results/pairslice_pre_disposition/`: they used an `if`/`elif` with no
   `else` that silently dropped the 561 pairs whose members are near-identical in
   both node text and edges, and their per-seed values did not reproduce on
