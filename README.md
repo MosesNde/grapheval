@@ -97,7 +97,20 @@ same comparison can change sign between them.
   pairs are aligned across seeds by sample id rather than assuming it. Ties
   matter on one slice only: where the patch leaves no trace in the graph, 22.6%
   of pairs receive the same score for both members, and charging those as
-  failures is what had put that slice below chance.
+  failures is what had put that slice below chance. How a tie is defined is a
+  reportable choice there: admitting differences within 1e-6 raises that slice's
+  tie fraction to 64.1%, against 8.0% and 4.0% on the other two.
+
+  These files store per-pair scores rounded to six decimals. Their win/loss/tie
+  counts were computed before rounding and are exact, so point estimates and
+  seed-level intervals are exact, but the pair-level bootstrap is rebuilt from
+  the scores and is approximate: on the near-identical slice the scores are
+  ~1e-3, so six decimals inflates apparent ties by 228 of 561 pairs and moves
+  the recomputed rate by 0.021, and 259 pairs cannot be resolved from the stored
+  data at all. `pair_slice_repo-s*-exact.json`, produced by
+  `run_pairslice_exact.sh`, supersedes them: full-precision scores, an explicit
+  per-pair outcome code, and the whole test partition's scores with sample ids,
+  so any slice definition or tie rule can be re-analysed without retraining.
 - `pair_slice_*.json` without that suffix: the earlier runs, which stored only
   per-pair win booleans. Ties had already been folded into losses at write time
   and cannot be recovered from them. Superseded two-bucket versions are kept

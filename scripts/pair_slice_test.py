@@ -261,6 +261,12 @@ def main():
                              capture_output=True, text=True).stdout.strip() or None
     except Exception:
         git = None
+    # Full test-partition scores at full precision, with the sample-id order, so
+    # a change of slice definition or tie rule can be re-analysed without
+    # retraining. The models themselves are not persisted by train_expert.
+    out["_test_sample_ids"] = [str(g.sample_id) for g in test]
+    out["_test_scores"] = {arm: [float(x) for x in results[arm]]
+                           for arm in ("graph", "nograph")}
     out["config"] = {"mode": a.mode, "epochs": a.epochs, "seed": cfg["seed"],
                      "reverse_edges": a.reverse_edges, "layers": a.layers,
                      "batch_size": cfg["batch_size"],
