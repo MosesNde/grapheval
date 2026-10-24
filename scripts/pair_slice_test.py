@@ -4,22 +4,36 @@ pair_slice_test.py — does the graph help where structure is the only differenc
 
 The aggregate edge-deletion gap is small, which reads as "edges do not matter".
 A reviewer's objection, correctly, is that swapping two lines can change CFG/DFG
-while leaving the node set almost intact, and that such a case must depend on
-structure. Measuring that in aggregate hides it: only 9.3% of vulnerable/patched
-pairs in this corpus have near-identical node text with different edges, while
-61.5% change both, where token content alone separates the two versions.
+while leaving the node set almost intact, so such a case turns on structure.
+Measuring in aggregate hides those cases, because they are a small minority of
+the corpus.
 
 This evaluates on the pairs directly. For each vulnerable/patched pair held in
-the test partition, a model is correct if it scores the vulnerable member above
-the patched one. That is a within-pair comparison, so project identity, length
-and style cancel. Two slices are reported:
+the test partition the model scores both members, and the pair is recorded as a
+win, a loss or a tie. That is a within-pair comparison, so project identity,
+length and style cancel. Pairs are compared by Jaccard similarity of node text
+and of edges at a threshold of 0.95, and every eligible pair falls into exactly
+one of three slices:
 
-  structure-only   node text >= 0.95 Jaccard, edges < 0.95   (the objection)
-  text-differs     node text < 0.95                          (the rest)
+  structure-only   node text >= 0.95, edges <  0.95    165 pairs,  8.0%
+  text-differs     node text <  0.95                 1,341 pairs, 64.9%
+  near-identical   node text >= 0.95, edges >= 0.95    561 pairs, 27.1%
 
-If edges carry vulnerability signal that this pipeline can use, the graph model
-should beat the edge-free model on the structure-only slice. If it does not, the
-limitation is the architecture or the encoding, not the corpus.
+The near-identical slice is not a leftover. There the patch alters neither the
+node text nor the edges appreciably, so the representation does not encode the
+difference the model is asked to find, and the two members can featurise
+identically. Ties concentrate there and have to be reported as ties rather than
+charged as failures.
+
+What each slice can and cannot settle. The structure-only slice is the one where
+edges are the only thing the patch moves, so comparing the graph arm against the
+edge-free arm there measures whether edges carry signal this pipeline can use. A
+null result on that slice bounds what this pipeline extracts from edges on these
+pairs; it does not by itself identify where the limit sits. Architecture,
+encoding, the frozen node features, label noise in the mined pairs, and the
+absence of the signal from the corpus are all consistent with the same null, and
+this script separates none of them. Attributing the result to any one of them
+needs the controls in the surrounding sections, not this measurement alone.
 """
 from __future__ import annotations
 import argparse, collections, json, sys

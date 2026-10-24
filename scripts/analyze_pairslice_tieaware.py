@@ -24,7 +24,7 @@ inside the interval width. pair_slice_test.py now stores full precision and an
 explicit per-pair outcome code, so later runs need no such allowance.
 """
 from __future__ import annotations
-import json, glob, sys
+import argparse, json, glob, sys
 from pathlib import Path
 import numpy as np
 from scipy import stats
@@ -34,11 +34,30 @@ SLICES = ["structure-only", "text-differs", "near-identical"]
 ARMS = ["graph", "nograph"]
 
 
-def load(tag="tieaware"):
+def load(tag):
     fs = sorted(glob.glob(str(ROOT / "runs" / f"pair_slice_repo-s*-{tag}.json")))
     if not fs:
         sys.exit(f"no artifacts matching -{tag}")
     return [(Path(f).name, json.load(open(f))) for f in fs]
+
+
+def exact_per_pair(d, sl, arm):
+    """Per-pair outcome, 1.0 win / 0.5 tie / 0.0 loss.
+
+    The -exact runs write the outcome directly, at full precision. The older
+    -tieaware runs do not: their scores are rounded to six decimals, which on
+    the near-identical slice turns a difference of ~1e-7 into an apparent tie.
+    Reconstructing outcomes from those scores inflates the tie count (3-5 real
+    ties become 25-47 on structure-only/nograph) and moves the rate by up to
+    0.03, so a bootstrap built from them is approximate and is labelled as such.
+    """
+    r = d[sl]
+    if f"{arm}_outcome" in r:
+        return np.asarray(r[f"{arm}_outcome"], float), True
+    v = np.asarray(r[f"{arm}_score_vuln"], float)
+    q = np.asarray(r[f"{arm}_score_patched"], float)
+    x = v - q
+    return np.where(x == 0, 0.5, (x > 0).astype(float)), False
 
 
 def outcome(sv, sp, tol=0.0):
@@ -48,7 +67,12 @@ def outcome(sv, sp, tol=0.0):
 
 
 def main():
-    runs = load()
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--tag", default="exact",
+                    help="artifact suffix to aggregate; 'exact' (full precision, "
+                         "the default) or 'tieaware' (the superseded rounded runs)")
+    a = ap.parse_args()
+    runs = load(a.tag)
     print(f"{len(runs)} runs: " + ", ".join(n for n, _ in runs))
 
     disp = {d["_disposition"][s] for _, d in runs for s in SLICES}
@@ -75,9 +99,17 @@ def main():
             strict = W / n
             tieaw = (W + 0.5 * T) / n
             # per-pair mean outcome across seeds, then bootstrap over pairs
-            per_seed = np.array([outcome(d[sl][f"{arm}_score_vuln"],
-                                         d[sl][f"{arm}_score_patched"])
-                                 for _, d in runs])
+            got = [exact_per_pair(d, sl, arm) for _, d in runs]
+            per_seed = np.array([g[0] for g in got])
+            is_exact = all(g[1] for g in got)
+            # Cross-check: the per-pair outcomes must reproduce the counts the
+            # run wrote at full precision. Exact artifacts must match exactly;
+            # rounded ones are expected to disagree, and by how much is reported.
+            recon = per_seed.sum(axis=1)
+            booked = (W + 0.5 * T)
+            if is_exact:
+                assert np.allclose(recon, booked), \
+                    f"per-pair outcomes disagree with stored counts for {sl}/{arm}"
             per_pair = per_seed.mean(axis=0)
             rng = np.random.default_rng(0)
             idx = rng.integers(0, n, size=(10000, n))
@@ -93,17 +125,20 @@ def main():
                              tieaw=tieaw.mean(), tieaw_sd=tieaw.std(ddof=1),
                              seed_lo=tieaw.mean() - h, seed_hi=tieaw.mean() + h,
                              pair_lo=pci[0], pair_hi=pci[1],
+                             pair_exact=is_exact,
+                             recon_gap=float(np.mean(recon - booked) / n),
                              per_pair=per_pair, tieaw_seeds=tieaw))
 
     print(f"\n{'slice':16s}{'arm':>9s}{'n':>6s}{'W':>7s}{'L':>7s}{'T':>7s}"
           f"{'tie%':>7s}{'strict':>9s}{'tieaware':>10s}"
           f"{'seed CI':>18s}{'pair CI':>18s}")
     for r in rows:
+        note = "" if r["pair_exact"] else f"  approx, rate off by {r['recon_gap']:+.3f}"
         print(f"{r['slice']:16s}{r['arm']:>9s}{r['n']:6d}"
               f"{r['W']:7.1f}{r['L']:7.1f}{r['T']:7.1f}{100*r['Tfrac']:6.1f}%"
               f"{r['strict']:9.4f}{r['tieaw']:10.4f}"
               f"   [{r['seed_lo']:.3f},{r['seed_hi']:.3f}]"
-              f"   [{r['pair_lo']:.3f},{r['pair_hi']:.3f}]")
+              f"   [{r['pair_lo']:.3f},{r['pair_hi']:.3f}]{note}")
 
     print("\n=== is the tie-aware accuracy distinguishable from chance? ===")
     for r in rows:

@@ -93,8 +93,12 @@ same comparison can change sign between them.
   rate (a tie credited as half a win), a pair-level bootstrap interval, tie
   counts under both an exact and a 1e-6 definition, and the raw per-pair scores,
   so any tie rule or interval can be recomputed without retraining.
-  `analyze_pairslice_tieaware.py` aggregates the five runs and asserts that
-  pairs are aligned across seeds by sample id rather than assuming it. Ties
+  `analyze_pairslice_tieaware.py` aggregates the runs, defaulting to the
+  full-precision `-exact` files; pass `--tag tieaware` for the superseded ones.
+  It asserts that pairs are aligned across seeds by sample id rather than
+  assuming it, and that reconstructed per-pair outcomes reproduce the counts the
+  run booked at full precision. On rounded artifacts that assertion is relaxed
+  and the per-cell displacement is printed instead. Ties
   matter on one slice only: where the patch leaves no trace in the graph, 22.6%
   of pairs receive the same score for both members, and charging those as
   failures is what had put that slice below chance. How a tie is defined is a
@@ -105,9 +109,11 @@ same comparison can change sign between them.
   counts were computed before rounding and are exact, so point estimates and
   seed-level intervals are exact, but the pair-level bootstrap is rebuilt from
   the scores and is approximate: on the near-identical slice the scores are
-  ~1e-3, so six decimals inflates apparent ties by 228 of 561 pairs and moves
-  the recomputed rate by 0.021, and 259 pairs cannot be resolved from the stored
-  data at all. `pair_slice_repo-s*-exact.json`, produced by
+  ~1e-3, so six decimals can read a difference of 1e-7 as a tie. The per-cell
+  displacement of a recomputed rate runs from -0.002 to +0.030, largest on the
+  edge-free structure-only cell, where 3 to 5 real ties per seed become 25 to
+  47. On the near-identical graph cell 259 of 561 pairs cannot be resolved from
+  the stored data at all. `pair_slice_repo-s*-exact.json`, produced by
   `run_pairslice_exact.sh`, supersedes them: full-precision scores, an explicit
   per-pair outcome code, and the whole test partition's scores with sample ids,
   so any slice definition or tie rule can be re-analysed without retraining.
