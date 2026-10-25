@@ -9,8 +9,14 @@ same score, and the pair is undecidable rather than wrong. This script reports
 the disposition of every pair as win/loss/tie, both the strict and the tie-aware
 accuracy, and two intervals that answer different questions:
 
-  seed interval  -- t interval over the five runs. Asks how much the figure
-                    moves when training is repeated.
+  run interval   -- t interval over the runs. Asks how much the figure moves
+                    when training is repeated. It is labelled "run" and not
+                    "seed" deliberately: repeating a run at a fixed seed does
+                    not reproduce it, because set_seed does not make the CUDA
+                    scatter reductions used by message passing deterministic
+                    and the WeightedRandomSampler is built without an explicit
+                    generator. Two sets of five runs at identical configuration
+                    differ by up to 0.13 on a single cell.
   pair interval  -- bootstrap over pairs of each pair's mean outcome across the
                     five seeds. Asks how much it moves with a different sample
                     of pairs. Pairs are aligned across seeds by sample id and
@@ -71,8 +77,22 @@ def main():
     ap.add_argument("--tag", default="exact",
                     help="artifact suffix to aggregate; 'exact' (full precision, "
                          "the default) or 'tieaware' (the superseded rounded runs)")
+    ap.add_argument("--pool", default="",
+                    help="comma-separated tags to pool as independent runs, e.g. "
+                         "'exact,tieaware'. Repeating a seed does not reproduce "
+                         "its result (set_seed does not make the CUDA scatter "
+                         "reductions deterministic), so runs at the same seed in "
+                         "different sets are independent replications and pooling "
+                         "them is legitimate. Point estimates and run-level tests "
+                         "use every pooled run; the pair-level bootstrap uses only "
+                         "the runs that carry exact per-pair outcomes.")
     a = ap.parse_args()
-    runs = load(a.tag)
+    if a.pool:
+        tags = [t.strip() for t in a.pool.split(",") if t.strip()]
+        runs = [r for t in tags for r in load(t)]
+        print(f"pooling {len(runs)} runs over tags {tags}")
+    else:
+        runs = load(a.tag)
     print(f"{len(runs)} runs: " + ", ".join(n for n, _ in runs))
 
     disp = {d["_disposition"][s] for _, d in runs for s in SLICES}
@@ -100,13 +120,20 @@ def main():
             tieaw = (W + 0.5 * T) / n
             # per-pair mean outcome across seeds, then bootstrap over pairs
             got = [exact_per_pair(d, sl, arm) for _, d in runs]
-            per_seed = np.array([g[0] for g in got])
-            is_exact = all(g[1] for g in got)
+            # Restrict the pair-level bootstrap to runs with exact per-pair
+            # outcomes; rounded runs would inject artificial ties into it.
+            ex = [g[0] for g in got if g[1]]
+            is_exact = len(ex) > 0
+            per_seed = np.array(ex) if is_exact else np.array([g[0] for g in got])
+            n_pairboot = len(per_seed)
             # Cross-check: the per-pair outcomes must reproduce the counts the
             # run wrote at full precision. Exact artifacts must match exactly;
             # rounded ones are expected to disagree, and by how much is reported.
             recon = per_seed.sum(axis=1)
-            booked = (W + 0.5 * T)
+            booked_all = np.array([(d[sl][f"{arm}_wins"] + 0.5 * d[sl][f"{arm}_ties"])
+                                   for _, d in runs], float)
+            booked = booked_all[[i for i, g in enumerate(got) if g[1]]] \
+                if is_exact else booked_all
             if is_exact:
                 assert np.allclose(recon, booked), \
                     f"per-pair outcomes disagree with stored counts for {sl}/{arm}"
@@ -125,13 +152,13 @@ def main():
                              tieaw=tieaw.mean(), tieaw_sd=tieaw.std(ddof=1),
                              seed_lo=tieaw.mean() - h, seed_hi=tieaw.mean() + h,
                              pair_lo=pci[0], pair_hi=pci[1],
-                             pair_exact=is_exact,
+                             pair_exact=is_exact, n_pairboot=n_pairboot,
                              recon_gap=float(np.mean(recon - booked) / n),
                              per_pair=per_pair, tieaw_seeds=tieaw))
 
     print(f"\n{'slice':16s}{'arm':>9s}{'n':>6s}{'W':>7s}{'L':>7s}{'T':>7s}"
           f"{'tie%':>7s}{'strict':>9s}{'tieaware':>10s}"
-          f"{'seed CI':>18s}{'pair CI':>18s}")
+          f"{'run CI':>18s}{'pair CI':>18s}")
     for r in rows:
         note = "" if r["pair_exact"] else f"  approx, rate off by {r['recon_gap']:+.3f}"
         print(f"{r['slice']:16s}{r['arm']:>9s}{r['n']:6d}"
@@ -140,6 +167,8 @@ def main():
               f"   [{r['seed_lo']:.3f},{r['seed_hi']:.3f}]"
               f"   [{r['pair_lo']:.3f},{r['pair_hi']:.3f}]{note}")
 
+    print(f"\n  pair bootstrap uses {rows[0]['n_pairboot']} run(s) with exact "
+          f"per-pair outcomes; point estimates use all {len(runs)}")
     print("\n=== is the tie-aware accuracy distinguishable from chance? ===")
     for r in rows:
         t, p = stats.ttest_1samp(r["tieaw_seeds"], 0.5)

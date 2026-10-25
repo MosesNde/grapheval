@@ -94,7 +94,15 @@ same comparison can change sign between them.
   counts under both an exact and a 1e-6 definition, and the raw per-pair scores,
   so any tie rule or interval can be recomputed without retraining.
   `analyze_pairslice_tieaware.py` aggregates the runs, defaulting to the
-  full-precision `-exact` files; pass `--tag tieaware` for the superseded ones.
+  full-precision `-exact` files; pass `--tag tieaware` for the older set, or
+  `--pool exact,tieaware` for the ten-run analysis the paper reports. Pooling is
+  legitimate because a seed does not reproduce: `set_seed` does not make the
+  CUDA scatter reductions in message passing deterministic, and the weighted
+  sampler is built without an explicit generator, so the two sets of five runs
+  at identical seeds and configuration are independent replications. They differ
+  by up to 0.13 on a single cell. Point estimates and run-level tests use all
+  ten runs; the pair-level bootstrap uses only the five that carry exact
+  per-pair outcomes.
   It asserts that pairs are aligned across seeds by sample id rather than
   assuming it, and that reconstructed per-pair outcomes reproduce the counts the
   run booked at full precision. On rounded artifacts that assertion is relaxed
